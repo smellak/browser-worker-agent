@@ -1,1 +1,17 @@
-# configuración de despliegue (se llenará más tarde)
+services:
+  - type: web
+    name: browser-worker-agent
+    env: python
+    plan: free
+    region: frankfurt
+    buildCommand: |
+      pip install -r requirements.txt
+      playwright install chromium
+    startCommand: |
+      uvicorn app.main:app --host 0.0.0.0 --port 10000
+    autoDeploy: true
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4.1-mini
