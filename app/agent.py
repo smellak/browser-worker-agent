@@ -1,9 +1,7 @@
 import os
 import json
 from typing import Dict, Any, List
-
 from openai import OpenAI
-
 from .browser import (
     launch_browser,
     goto_url,
@@ -13,9 +11,7 @@ from .browser import (
 )
 from .state_encoder import encode_state_for_llm
 
-# Cliente OpenAI (usa la variable de entorno OPENAI_API_KEY)
 client = OpenAI()
-
 SYSTEM_PROMPT = """
 Eres un agente experto en navegación web.
 Recibes el estado actual de una página (URL, título, texto visible resumido
@@ -39,15 +35,9 @@ Devuelves SIEMPRE un JSON válido con este esquema y NADA más:
 }
 """.strip()
 
-
 def call_llm_for_action(snapshot: Dict, goal: str, step: int, max_steps: int) -> Dict:
-    """
-    Llama al modelo de OpenAI para decidir la siguiente acción del agente.
-    """
     prompt = encode_state_for_llm(snapshot, goal, step, max_steps)
-
     model_name = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
-
     response = client.chat.completions.create(
         model=model_name,
         messages=[
@@ -56,10 +46,7 @@ def call_llm_for_action(snapshot: Dict, goal: str, step: int, max_steps: int) ->
         ],
         temperature=0.2,
     )
-
     content = response.choices[0].message.content.strip()
-
-    # Intentamos parsear JSON; si falla, devolvemos finish por seguridad
     try:
         data = json.loads(content)
         return data
@@ -71,21 +58,7 @@ def call_llm_for_action(snapshot: Dict, goal: str, step: int, max_steps: int) ->
             "note_for_extraction": "N/A",
         }
 
-
 def run_agent(start_url: str, goal: str, max_steps: int = 20) -> Dict[str, Any]:
-    """
-    Ejecuta el bucle de agente:
-      1. Lanza navegador y va a start_url
-      2. En cada paso:
-         - Obtiene snapshot
-         - Acumula texto visible
-         - Llama al LLM para decidir acción
-         - Ejecuta: click / scroll / finish
-      3. Devuelve:
-         - pasos realizados
-         - contenido acumulado
-         - motivo de finalización
-    """
     browser = None
     page = None
     steps_log: List[Dict[str, Any]] = []
@@ -99,7 +72,7 @@ def run_agent(start_url: str, goal: str, max_steps: int = 20) -> Dict[str, Any]:
         for step in range(1, max_steps + 1):
             snapshot = get_page_snapshot(page)
 
-            # acumulamos texto visible (simple; se puede mejorar deduplicando)
+            # acumulamos texto visible
             visible = snapshot.get("visible_text", "").strip()
             if visible:
                 aggregated_content_parts.append(visible)
@@ -131,7 +104,6 @@ def run_agent(start_url: str, goal: str, max_steps: int = 20) -> Dict[str, Any]:
                     if target_index is not None:
                         click_element_by_index(page, snapshot, int(target_index))
                     else:
-                        # si no hay índice, no hacemos click
                         steps_log[-1]["reason"] += " (sin target_index, no se hizo click)"
                 except Exception:
                     steps_log[-1]["reason"] += " (click fallido)"
@@ -152,8 +124,6 @@ def run_agent(start_url: str, goal: str, max_steps: int = 20) -> Dict[str, Any]:
             "aggregated_content": aggregated_content,
             "finished_reason": finished_reason,
         }
-
     finally:
         if browser is not None:
             browser.close()
-
