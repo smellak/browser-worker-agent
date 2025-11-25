@@ -7,3 +7,5 @@ pasándole una URL inicial y un objetivo en lenguaje natural, y devolviendo:
 
 - Los pasos de navegación que ha realizado (clicks, scroll, etc.).
 - El contenido de texto que ha ido encontrando durante la exploración.
+
+## Estructura del Proyecto
