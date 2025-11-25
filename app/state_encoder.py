@@ -1,16 +1,6 @@
 from typing import Dict
 
-
 def encode_state_for_llm(snapshot: Dict, goal: str, step: int, max_steps: int) -> str:
-    """
-    Convierte el estado actual de Playwright en un prompt comprensible para el LLM.
-    snapshot contiene:
-      - url
-      - title
-      - visible_text
-      - clickable_elements (lista de {index, type, text})
-    """
-
     url = snapshot.get("url", "")
     title = snapshot.get("title", "")
     visible_text = snapshot.get("visible_text", "")
