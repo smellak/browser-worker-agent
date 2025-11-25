@@ -1,1 +1,6 @@
-# dependencias del proyecto (se llenará más tarde)
+fastapi
+uvicorn[standard]
+playwright
+openai>=1.0.0
+pydantic
+python-dotenv
