@@ -15,7 +15,7 @@ class RunAgentRequest(BaseModel):
     max_steps: int = 20
 
 class RunAgentResponse(BaseModel):
-    start_url: HttpUrl
+    start_url: str
     goal: str
     max_steps: int
     steps: list
@@ -24,6 +24,7 @@ class RunAgentResponse(BaseModel):
 
 @app.get("/")
 def root():
+    """Endpoint de salud del servicio"""
     return {
         "status": "ok",
         "message": "Browser Worker Agent vivo",
@@ -31,6 +32,7 @@ def root():
 
 @app.post("/run-agent", response_model=RunAgentResponse)
 def run_agent_endpoint(payload: RunAgentRequest):
+    """Endpoint principal para ejecutar el agente de navegación"""
     if not os.getenv("OPENAI_API_KEY"):
         raise HTTPException(
             status_code=500,
