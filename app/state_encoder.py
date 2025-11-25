@@ -1,6 +1,7 @@
 from typing import Dict
 
 def encode_state_for_llm(snapshot: Dict, goal: str, step: int, max_steps: int) -> str:
+    """Codifica el estado actual de la página en un prompt para el LLM"""
     url = snapshot.get("url", "")
     title = snapshot.get("title", "")
     visible_text = snapshot.get("visible_text", "")
@@ -43,11 +44,11 @@ Opciones:
 - "finish": terminar si ya recibiste suficiente información o no hay buenas acciones
 
 Devuelve SOLO un JSON válido con este formato:
-{
+{{
   "action": "click" | "scroll" | "finish",
   "reason": "Explica por qué eliges esta acción",
   "target_index": <número o null>,
   "note_for_extraction": "Qué información buscas obtener ahora"
-}
+}}
 """
     return prompt.strip()
